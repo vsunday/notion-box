@@ -28,7 +28,7 @@ export async function queryDatabase() {
   return res;
 };
 
-export async function insertDatabase() {
+export async function insertDatabase(name: string, job_position: string, file_id: string) {
   const res = await notionClient.pages.create({
     parent: { database_id: env.NOTION_DATABASE_ID },
     icon: {
@@ -37,7 +37,7 @@ export async function insertDatabase() {
         "url": "https://www.notion.so/icons/checklist_gray.svg"
       }
     },
-    properties: formatCandidateProp("Jan Doe", "Senior Software Engineer"),
+    properties: formatCandidateProp(name, job_position, file_id),
   } satisfies CreatePageParameters);
   return res;
 }
@@ -52,7 +52,7 @@ export async function getPageProp() {
   return res;
 }
 
-function formatCandidateProp(name: string, job_position: string) {
+function formatCandidateProp(name: string, job_position: string, file_id: string) {
   const formattedProp = {
     Candidate: {
       type: 'rich_text',
@@ -70,6 +70,17 @@ function formatCandidateProp(name: string, job_position: string) {
       select: {
         name: job_position
       }
+    },
+    Notes: {
+      type: "rich_text",
+      rich_text: [
+        {
+          type: 'text',
+          text: {
+            content: file_id
+          }
+        }
+      ] 
     },
     Priority: {
       type: 'select',
@@ -131,3 +142,7 @@ export async function appendBlockChildren(block_id: string, box_shared_link: str
   })
   return res;
 }
+
+// update page with file_id
+
+// get file_id from page. 

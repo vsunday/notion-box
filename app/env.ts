@@ -6,6 +6,7 @@ const envSchema = z.object({
   NOTION_DATABASE_ID: z.string(),
   BOX_CLIENT_ID: z.string(),
   BOX_CLIENT_SECRET: z.string(),
+  BOX_ENTERPRISE_ID: z.string(),
 });
 
 const env = envSchema.safeParse(process.env);

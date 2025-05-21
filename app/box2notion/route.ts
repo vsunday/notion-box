@@ -1,15 +1,31 @@
 import { NextResponse } from 'next/server';
-import { insertDatabase, queryDatabase, getPageProp, getBlockChildren, appendBlockChildren } from '@/app/box2notion/test';
+import { insertDatabase, appendBlockChildren } from '@lib/notion';
+import { createSharedLink, getResumeMetadata } from '@lib/box';
+
+type BoxWebhookBody = {
+  source: {
+    id: string;
+  }
+}
 
 // sample implentation of a router of api router in Next.js
-export async function GET(req: Request) {
-  // Test the environment variables
+export async function POST(req: Request) {
+  // get webhook body
+  const body = (await req.json()) as BoxWebhookBody;
+  const file_id = body.source.id;
 
-  // const res = await getPageProp();
-  // const res = await queryDatabase();
-  // const res = await getPageProp();
-  // const res = await getBlockChildren();
-  const res = await insertDatabase();
-  const appended = await appendBlockChildren(res.id);
-  return NextResponse.json({ message: appended }, {status: 200});
+  // extract metadata from file
+  const {name, job_position} = await getResumeMetadata(file_id);
+
+  // create shared link
+  const sharedFile = await createSharedLink(file_id);
+
+  // create a page in Notion DB
+  const notionRes = await insertDatabase(name, job_position, file_id);
+  const page_id = notionRes.id;
+
+  // add block to the page
+  const appended = await appendBlockChildren(page_id, sharedFile.sharedLink?.url as string);
+
+  return NextResponse.json({ message: body }, {status: 200});
 }
