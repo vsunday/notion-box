@@ -1,9 +1,8 @@
-import { type NextApiRequest } from 'next';
 import { NextResponse } from 'next/server';
 import { insertDatabase, queryDatabase, getPageProp, getBlockChildren, appendBlockChildren } from '@/app/box2notion/test';
 
 // sample implentation of a router of api router in Next.js
-export async function GET(req: NextApiRequest) {
+export async function GET(req: Request) {
   // Test the environment variables
 
   // const res = await getPageProp();
