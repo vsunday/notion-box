@@ -80,6 +80,10 @@ export async function createSharedLink(file_id: string) {
 // create collab
 
 // delete file
+export async function deleteFile(file_id: string) {
+  const res = await boxClient.files.deleteFileById(file_id);
+  return res;
+}
 
 export async function test() {
   const user = await boxClient.users.getUserMe();

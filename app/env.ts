@@ -1,6 +1,10 @@
 // environment schema with zod
 import { z } from 'zod';
 
+import * as path from 'path';
+import { config } from "dotenv";
+config({ path: path.join(__dirname, "../.env.local") });
+
 const envSchema = z.object({
   NOTION_TOKEN: z.string(),
   NOTION_DATABASE_ID: z.string(),

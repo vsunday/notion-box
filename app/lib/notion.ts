@@ -1,5 +1,6 @@
 import env from '@/app/env';
 import { Client, CreatePageParameters } from '@notionhq/client';
+import { PropertyItemPropertyItemListResponse, RichTextPropertyItemObjectResponse, StatusPropertyItemObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 
 const notionClient = new Client({ auth: env.NOTION_TOKEN });
 
@@ -42,14 +43,37 @@ export async function insertDatabase(name: string, job_position: string, file_id
   return res;
 }
 
-export async function getPageProp() {
-  const pageId = "xxx"
-
+export async function getPageProp(page_id: string) {
   const res = await notionClient.pages.retrieve({
-    page_id: pageId,
+    page_id: page_id,
   });
-  console.log('Notion API response:', JSON.stringify(res, null, 2));
   return res;
+}
+
+export async function getPagePropStatus(page_id: string) {
+  const res = await notionClient.pages.properties.retrieve({
+    page_id: page_id,
+    property_id: "Status"
+  });
+  return res as StatusPropertyItemObjectResponse;
+}
+
+export async function getPagePropNotes(page_id: string) {
+  const res = await notionClient.pages.properties.retrieve({
+    page_id: page_id,
+    property_id: "Notes"
+  }) as PropertyItemPropertyItemListResponse;
+  // const notes = res.results as RichTextPropertyItemObjectResponse[]
+  return res.results as RichTextPropertyItemObjectResponse[]
+}
+
+// get file_id from page. 
+export async function getFileIdFromNotes(page_id: string) {
+  const pageNotes = await getPagePropNotes(page_id);
+  if (pageNotes.length === 0) {
+    throw new Error("No notes found in the page");
+  }
+  return pageNotes[0].rich_text.plain_text;
 }
 
 function formatCandidateProp(name: string, job_position: string, file_id: string) {
@@ -120,6 +144,7 @@ export async function getBlockChildren() {
   return res;
 }
 
+// update page with file_id
 export async function appendBlockChildren(block_id: string, box_shared_link: string) {
   const res = await notionClient.blocks.children.append({
     block_id: block_id,
@@ -143,6 +168,3 @@ export async function appendBlockChildren(block_id: string, box_shared_link: str
   return res;
 }
 
-// update page with file_id
-
-// get file_id from page. 
